@@ -1,6 +1,6 @@
 const { User, Book } = require("../models");
 
-const resolvers = {
+export default resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
