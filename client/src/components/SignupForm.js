@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
+import { useMutation} from '@apollo/client';
+import { ADD_USER } from '../utils/mutations';
 import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
-import { useQuery, useMutation } from '@apollo/client';
-import { ADD_USER } from '../utils/mutations';
 
+// Replace the createUser() functionality imported from the API file with the ADD_USER mutation functionality.
 
 const SignupForm = () => {
   // set initial form state
@@ -15,6 +15,7 @@ const SignupForm = () => {
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
+  const [ addUser, {error}] = useMutation(ADD_USER);
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
@@ -29,15 +30,17 @@ const SignupForm = () => {
       event.preventDefault();
       event.stopPropagation();
     }
-    //  Replace the addUser() functionality imported from the API file with the ADD_USER mutation functionality.
-    try {
-      const response = await useMutation(ADD_USER);
 
-      if (!response.ok) {
+    try {
+      const {data} = await addUser({
+        variables: { ... userFormData }
+      });
+
+      if (!data.ok) {
         throw new Error('something went wrong!');
       }
 
-      const { token, user } = await response.json();
+      const { token, user } = await data.json();
       console.log(user);
       Auth.login(token);
     } catch (err) {
