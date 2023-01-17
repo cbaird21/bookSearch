@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
+import { setContext } from "@apollo/client/link/context";
 import SearchBooks from './pages/SearchBooks';
 import SavedBooks from './pages/SavedBooks';
 import Navbar from './components/Navbar';
@@ -11,9 +12,11 @@ import Navbar from './components/Navbar';
 //   cache: new InMemoryCache(),
 // });
 
-const httplink = createHttpLink({
+// this sends graphql operations to our remote endpoint, it might be what we were missing?
+const httpLink = createHttpLink({
   uri: '/graphql'
 })
+
 // create link with context to use jwt and pass to apollo
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem("id_token");
@@ -28,7 +31,7 @@ const authLink = setContext((_, { headers }) => {
 
 // using the apollo client with the created http link
 const client = new ApolloClient({
-  link: authLink.concat(httplink),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 
