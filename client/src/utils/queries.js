@@ -3,13 +3,22 @@
 
 import { gql } from '@apollo/client';
 
+// expand query to include all keys returned on object
 export const GET_ME = gql`
-    query me {
-        user {
-            _id
-            username
-            email
-            savedBooks
-        }
+  query me {
+    me {
+      _id
+      username
+      email
+      bookCount
+      savedBooks {
+        bookId
+        authors
+        description
+        title
+        image
+        link
+      }
     }
-`
+  }
+`;

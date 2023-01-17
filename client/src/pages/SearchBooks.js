@@ -35,31 +35,31 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await searchGoogleBooks(searchInput);
+      // removes the need for the api util
+      const response = await fetch(
+        `https://www.googleapis.com/books/v1/volumes?q=${searchInput}`
+      );
 
       if (!response.ok) {
-        throw new Error('something went wrong!');
+        throw new Error("something went wrong!");
       }
 
       const { items } = await response.json();
 
       const bookData = items.map((book) => ({
         bookId: book.id,
-        authors: book.volumeInfo.authors || ['No author to display'],
+        authors: book.volumeInfo.authors || ["No author to display"],
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
+        image: book.volumeInfo.imageLinks?.thumbnail || "",
       }));
 
       setSearchedBooks(bookData);
-      setSearchInput('');
+      setSearchInput("");
     } catch (err) {
       console.error(err);
     }
   };
-
-
-
 
   // create function to handle saving a book to our database
   const handleSaveBook = async (bookId) => {
@@ -77,12 +77,13 @@ const SearchBooks = () => {
       // saveBook(bookToSave, token)
       // Use the Apollo useMutation() Hook to execute the SAVE_BOOK mutation in the handleSaveBook() function instead of the saveBook() function imported from the API file.
       const { data } = await saveBook({
-        variables: { bookId }
+        // newBook from savebook typeDef
+        variables: { newBook: { ...bookToSave } },
       });
 
-      if (!data.ok) {
-        throw new Error('something went wrong!');
-      }
+      // if (!data.ok) {
+      //   throw new Error("something went wrong!");
+      // }
 
       // Make sure you keep the logic for saving the book's ID to state in the try...catch block!
       // if book successfully saves to user's account, save book id to state
@@ -91,7 +92,7 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
+  
   return (
     <>
       <Jumbotron fluid className='text-light bg-dark'>

@@ -10,37 +10,12 @@ import { removeBookId } from '../utils/localStorage';
 // Remove the useState() Hook that sets the state for UserData.
 // Instead, use the useQuery() Hook to execute the GET_ME query on load and save it to a variable named userData.
 const SavedBooks = () => {
-  const [userData, setUserData] = useQuery(GET_ME);
-  const [removeBook, {error}] = useMutation(REMOVE_BOOK);
+  const [loading, data] = useQuery(GET_ME);
+  const [removeBook, { error }] = useMutation(REMOVE_BOOK);
+  const userData = data?.me || {};
 
 
   // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
-
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-        if (!token) {
-          return false;
-        }
-
-        const response = await getMe(token);
-
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
-
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    getUserData();
-  }, [userDataLength]);
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
 
@@ -54,24 +29,16 @@ const SavedBooks = () => {
 
     try {
       const { data } = await removeBook({
-        variables: { bookId }
+        variables: { bookId },
       });
 
-      if (!data.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const updatedUser = await data.json();
-      setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
